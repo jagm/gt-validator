@@ -2,6 +2,9 @@
 #-*- coding: utf-8 -*-
 
 import json
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Validator:
@@ -9,6 +12,11 @@ class Validator:
 
     def __init__(self, configuration):
         self.__configuration = configuration
+        self.logger = logging.getLogger('Validator')
+
+    def __log(self, result, message):
+        if not result:
+            self.logger.warning(message)
 
     def __get_delimiter(self):
         return self.__configuration.get('delimiter', '|')
@@ -24,14 +32,26 @@ class Validator:
         return definition.get('required', False)
 
     def __validate_row_size(self, row):
-        return len(row) == self.__get_expected_size()
+        expected_size = self.__get_expected_size()
+        size = len(row)
+        result = size == expected_size
+        self.__log(result, "Incorrect row size: %s (expected: %s)" % (size, expected_size))
+        return result
+
+    def __get_name_for_log(self, definition):
+        return definition.get('name', '<unknown>')
 
     def __validate_field_required(self, definition, value):
-        return not self.__is_required(definition) or value.strip()
+        result = not self.__is_required(definition) or value.strip()
+        self.__log(result, "Missing %s field" % self.__get_name_for_log(definition))
+        return result
 
     def __validate_field_max_length(self, definition, value):
         max_length = definition.get('maxLength', 0)
-        return not max_length or len(value) <= max_length
+        length = len(value)
+        result = not max_length or length <= max_length
+        self.__log(result, 'Too long %s field: %s (expected max length: %s)' % (self.__get_name_for_log(definition), length, max_length))
+        return result
 
     def __validate_field_min_length(self, definition, value):
         result = True
@@ -39,6 +59,7 @@ class Validator:
         if self.__is_required(definition) or length:
             min_length = definition.get('minLength', 0)
             result = length >= min_length
+            self.__log(result, 'Too short %s field: %s (expected min length: %s)' % (self.__get_name_for_log(definition), length, min_length))
         return result
 
     def __validate_field_possible_values(self, definition, value):
@@ -46,10 +67,17 @@ class Validator:
         possible_values = definition.get('values', [])
         if value.strip() and possible_values:
             result = value in possible_values
+            self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (self.__get_name_for_log(definition), value, possible_values))
         return result
+
+    def __set_default_field_name(self, definition, index):
+        if not definition.get('name', False):
+            definition['name'] = '<Field #%s>' % index
 
     def validate_field(self, field, index):
         definition = self.__get_column_definition(index)
+        self.__set_default_field_name(definition, index)
+
         result = True
         result = self.__validate_field_required(definition, field) and result
         result = self.__validate_field_max_length(definition, field) and result
