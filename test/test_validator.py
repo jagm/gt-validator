@@ -230,3 +230,35 @@ class TestValidator(TestCase):
 
         # then
         self.assertFalse(result)
+
+    def test_validate_extracted_row_pattern(self):
+        # given
+        validator = Validator({'size': 3, 'columns': [
+            {'integer': True, 'required': True},
+            {'integer': False, 'required': True},
+            {'integer': True}
+        ]})
+
+        # when
+        result = validator.validate_extracted_row(['1234', 'ABC', ' ', ])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row(['1234', 'ABC', '123', ])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row(['123H', 'ABC', ' ', ])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['1234', 'ABC', 'ABC', ])
+
+        # then
+        self.assertFalse(result)

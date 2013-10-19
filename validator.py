@@ -74,6 +74,14 @@ class Validator:
             self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (self.__get_name_for_log(definition), value, possible_values))
         return result
 
+    def __validate_pattern(self, definition, pattern, value):
+        result = True
+        if self.__should_be_validated(definition, value, pattern):
+            result = re.match(pattern, value)
+            self.__log(result, "%s value doesn't match pattern: %s (pattern: %s)" % (
+                self.__get_name_for_log(definition), value, pattern))
+        return result
+
     def __validate_field_pattern(self, definition, value):
         result = True
         pattern = definition.get('pattern', '')
@@ -83,9 +91,14 @@ class Validator:
         if pattern and (pattern[0] != '^' or pattern[-1] != '$'):
             self.logger.warning('Missing ^$ delimiters for regex: %s', pattern)
 
-        if self.__should_be_validated(definition, value, pattern):
-            result = re.match(pattern, value)
-            self.__log(result, "%s value doesn't match pattern: %s (pattern: %s)" % (self.__get_name_for_log(definition), value, pattern))
+        result = self.__validate_pattern(definition, pattern, value)
+        return result
+
+    def __validate_field_integer(self, definition, value):
+        result = True
+        is_integer = definition.get('integer', False)
+        if is_integer:
+            result = self.__validate_pattern(definition, '^[0-9]+$', value)
         return result
 
     def __set_default_field_name(self, definition, index):
@@ -102,6 +115,7 @@ class Validator:
         result = self.__validate_field_min_length(definition, field) and result
         result = self.__validate_field_possible_values(definition, field) and result
         result = self.__validate_field_pattern(definition, field) and result
+        result = self.__validate_field_integer(definition, field) and result
         return result
 
     def validate_extracted_row(self, row):
