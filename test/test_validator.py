@@ -166,6 +166,22 @@ class TestValidator(TestCase):
             {'values': ['1234', 'ABC', 'ABC'], 'result': False}
         ])
 
+    def test_validate_extracted_row_date(self):
+        # given
+        validator = Validator({'size': 3, 'columns': [
+            {'date': '%Y%m%d', 'required': True},
+            {'required': True},
+            {'date': '%Y%m%d'}
+        ]})
+
+        self.__repeat(validator, [
+            {'values': ['20131012', 'ABC', ' '], 'result': True},
+            {'values': ['20131012', 'ABC', 'ABC'], 'result': False},
+            {'values': ['20131012', 'ABC', '2013101'], 'result': False},
+            {'values': ['20131312', 'ABC', '  '], 'result': False},
+            {'values': ['20131032', 'ABC', '  '], 'result': False},
+        ])
+
     def __repeat(self, validator, test_cases):
         for test_case in test_cases:
             # when

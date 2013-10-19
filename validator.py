@@ -4,6 +4,7 @@
 import json
 import logging
 import re
+import datetime
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -26,6 +27,8 @@ class Validator:
         result = self.__validate_field_possible_values(definition, field) and result
         result = self.__validate_field_pattern(definition, field) and result
         result = self.__validate_field_integer(definition, field) and result
+        result = self.__validate_field_date(definition, field) and result
+
         return result
 
     def validate_extracted_row(self, row):
@@ -133,6 +136,18 @@ class Validator:
         is_integer = definition.get('integer', False)
         if is_integer:
             result = self.__validate_pattern(definition, '^[0-9]+$', value)
+        return bool(result)
+
+    def __validate_field_date(self, definition, value):
+        result = True
+        date_format = definition.get('date', False)
+        if self.__should_be_validated(definition, value, date_format):
+            try:
+                date_string = datetime.datetime.strptime(value, date_format).strftime(date_format)
+                result = date_string == value
+            except ValueError:
+                result = False
+            self.__log(result, "Incorrect %s date: %s (expected format: %s)" % (self.__get_name_for_log(definition), value, date_format))
         return bool(result)
 
     def __set_default_field_name(self, definition, index):
