@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
+import sys
 import json
 import logging
 import re
@@ -164,12 +165,15 @@ def load_data_file(data_file):
     return (line.rstrip('\n') for line in open(data_file, 'r'))
 
 
-def main():
+def main(data_file='data/flat_data.dat'):
     configuration = load_configuration()
-    data = load_data_file('data/flat_data.dat')
+    data = load_data_file(data_file)
     validator = Validator(configuration)
     validator.validate_data(data)
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) != 2:
+        logging.error("Incorrect arguments: %s. Provide file name to validate" % sys.argv)
+    else:
+        main(sys.argv[1])
