@@ -100,3 +100,19 @@ class TestValidator(TestCase):
         validator.validate_field.assert_has_calls([call('test', 0), call('test2', 1)])
         self.assertEqual(validator.validate_field.call_count, 2)
 
+    def test_validate_extracted_row_required(self):
+        # given
+        validator = Validator({'size': 2, 'columns': [{'required': True}, {'required': False}]})
+
+        # when
+        result = validator.validate_extracted_row(['test', ''])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row([' ', ' '])
+
+        # then
+        self.assertFalse(result)
+

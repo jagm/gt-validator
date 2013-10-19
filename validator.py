@@ -23,9 +23,14 @@ class Validator:
     def __validate_row_size(self, row):
         return len(row) == self.__get_expected_size()
 
+    def __validate_field_required(self, definition, value):
+        return not definition.get('required', False) or value.strip()
+
     def validate_field(self, field, index):
         definition = self.__get_column_definition(index)
-        return True
+        result = True
+        result = self.__validate_field_required(definition, field) and result
+        return result
 
     def validate_extracted_row(self, row):
         result = True
