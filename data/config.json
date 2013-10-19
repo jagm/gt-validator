@@ -3,22 +3,22 @@
     "delimiter": "|",
     "columns": [
         {
-            "name": "column name 1",
+            "name": "COLUMN_NAME_1",
             "required": true,
             "maxLength": 30,
             "minLength": 2,
             "values": ["15", "19"],
-            "pattern": "/[A-Za-z0-9]+/",
+            "pattern": "^[A-Za-z0-9]+$",
             "date": "%Y%m%d",
             "integer": true
         },
         {
-            "name": "column name 2",
+            "name": "COLUMN_NAME_2",
             "required": true,
             "maxLength": 30,
             "minLength": 2,
             "values": ["ABC", "DEF"],
-            "pattern": "/[A-Za-z0-9]+/"
+            "pattern": "^[A-Za-z0-9]+$"
         }
     ]
 }
