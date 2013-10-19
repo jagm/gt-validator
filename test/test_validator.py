@@ -151,7 +151,7 @@ class TestValidator(TestCase):
             {'values': ['ABC', '1234', ' ', 'Test#12'], 'result': False},
         ])
 
-    def test_validate_extracted_row_pattern(self):
+    def test_validate_extracted_row_integer(self):
         # given
         validator = Validator({'size': 3, 'columns': [
             {'integer': True, 'required': True},
