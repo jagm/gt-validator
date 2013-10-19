@@ -26,10 +26,15 @@ class Validator:
     def __validate_field_required(self, definition, value):
         return not definition.get('required', False) or value.strip()
 
+    def __validate_field_max_length(self, definition, value):
+        max_length = definition.get('maxLength', 0)
+        return not max_length or len(value) <= max_length
+
     def validate_field(self, field, index):
         definition = self.__get_column_definition(index)
         result = True
         result = self.__validate_field_required(definition, field) and result
+        result = self.__validate_field_max_length(definition, field) and result
         return result
 
     def validate_extracted_row(self, row):
@@ -37,6 +42,7 @@ class Validator:
         result = self.__validate_row_size(row) and result
         for i, field in enumerate(row):
             result = self.validate_field(field, i) and result
+
         return result
 
     def validate_row(self, row):

@@ -116,3 +116,24 @@ class TestValidator(TestCase):
         # then
         self.assertFalse(result)
 
+    def test_validate_extracted_row_max_length(self):
+        # given
+        validator = Validator({'size': 3, 'columns': [{'maxLength': 4}, {'maxLength': 2}, {}]})
+
+        # when
+        result = validator.validate_extracted_row(['test', 'te', 'test1234'])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row(['test', 'tes', 'test1234'])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['test1', 'te', 'test1234'])
+
+        # then
+        self.assertFalse(result)
