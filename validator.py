@@ -136,6 +136,7 @@ class Validator:
         is_integer = definition.get('integer', False)
         if is_integer:
             result = self.__validate_pattern(definition, '^[0-9]+$', value)
+            self.__log(result, "Incorrect %s integer value: %s" % (self.__get_name_for_log(definition), value))
         return bool(result)
 
     def __validate_field_date(self, definition, value):
