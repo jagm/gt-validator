@@ -1,5 +1,6 @@
 {
     "size": 2,
+    "delimiter": "|",
     "columns": [
         {
             "name": "column name 1",

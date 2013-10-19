@@ -10,8 +10,14 @@ class Validator:
     def __init__(self, configuration):
         self.__configuration = configuration
 
-    def validate_row(self, row):
+    def __get_delimiter(self):
+        return self.__configuration.get('delimiter', '|')
+
+    def validate_extracted_row(self, row):
         return True
+
+    def validate_row(self, row):
+        return self.validate_extracted_row(row.split(self.__get_delimiter()))
 
     def validate_data(self, data):
         result = True
