@@ -48,7 +48,7 @@ class Validator:
     def __validate_field_required(self, definition, value):
         result = not self.__is_required(definition) or value.strip()
         self.__log(result, "Missing %s field" % self.__get_name_for_log(definition))
-        return result
+        return bool(result)
 
     def __validate_field_max_length(self, definition, value):
         max_length = definition.get('maxLength', 0)
@@ -72,7 +72,7 @@ class Validator:
         if self.__should_be_validated(definition, value, possible_values):
             result = value in possible_values
             self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (self.__get_name_for_log(definition), value, possible_values))
-        return result
+        return bool(result)
 
     def __validate_pattern(self, definition, pattern, value):
         result = True
@@ -80,7 +80,7 @@ class Validator:
             result = re.match(pattern, value)
             self.__log(result, "%s value doesn't match pattern: %s (pattern: %s)" % (
                 self.__get_name_for_log(definition), value, pattern))
-        return result
+        return bool(result)
 
     def __validate_field_pattern(self, definition, value):
         result = True
@@ -92,14 +92,14 @@ class Validator:
             self.logger.warning('Missing ^$ delimiters for regex: %s', pattern)
 
         result = self.__validate_pattern(definition, pattern, value)
-        return result
+        return bool(result)
 
     def __validate_field_integer(self, definition, value):
         result = True
         is_integer = definition.get('integer', False)
         if is_integer:
             result = self.__validate_pattern(definition, '^[0-9]+$', value)
-        return result
+        return bool(result)
 
     def __set_default_field_name(self, definition, index):
         if not definition.get('name', False):

@@ -16,15 +16,11 @@ class TestValidator(TestCase):
         # then
         self.assertTrue(result)
 
-    def test_validate_data(self):
-        # given
-        validator = self.__default_validator
-
         # when
         result = validator.validate_data(['test', 'test2'])
 
         # then
-        self.assertTrue(result)
+        self.assertFalse(result)
 
     def test_validate_data(self):
         # given
@@ -67,25 +63,14 @@ class TestValidator(TestCase):
         # then
         validator.validate_extracted_row.assert_called_once_with(['test|te', 'st2'])
 
-    def test_validate_extracted_row_correct_size(self):
+    def test_validate_extracted_row_size(self):
         # given
         validator = Validator({'size': 2})
 
-        # when
-        result = validator.validate_extracted_row(['test', 'test2'])
-
-        # then
-        self.assertTrue(result)
-
-    def test_validate_extracted_row_wrong_size(self):
-        # given
-        validator = Validator({'size': 3})
-
-        # when
-        result = validator.validate_extracted_row(['test', 'test2'])
-
-        # then
-        self.assertFalse(result)
+        self.__repeat(validator, [
+            {'values': ['test', 'test2'], 'result': True},
+            {'values': ['test', 'test2', 'test3'], 'result': False}
+        ])
 
     def test_validate_extracted_row(self):
         # given
@@ -104,39 +89,20 @@ class TestValidator(TestCase):
         # given
         validator = Validator({'size': 2, 'columns': [{'required': True}, {'required': False}]})
 
-        # when
-        result = validator.validate_extracted_row(['test', ''])
-
-        # then
-        self.assertTrue(result)
-
-        # when
-        result = validator.validate_extracted_row([' ', ' '])
-
-        # then
-        self.assertFalse(result)
+        self.__repeat(validator, [
+            {'values': ['test', ''], 'result': True},
+            {'values': [' ', ''], 'result': False}
+        ])
 
     def test_validate_extracted_row_max_length(self):
         # given
         validator = Validator({'size': 3, 'columns': [{'maxLength': 4}, {'maxLength': 2}, {}]})
 
-        # when
-        result = validator.validate_extracted_row(['test', 'te', 'test1234'])
-
-        # then
-        self.assertTrue(result)
-
-        # when
-        result = validator.validate_extracted_row(['test', 'tes', 'test1234'])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['test1', 'te', 'test1234'])
-
-        # then
-        self.assertFalse(result)
+        self.__repeat(validator, [
+            {'values': ['test', 'te', 'test1234'], 'result': True},
+            {'values': ['test', 'tes', 'test1234'], 'result': False},
+            {'values': ['test1', 'te', 'test1234'], 'result': False}
+        ])
 
     def test_validate_extracted_row_min_length(self):
         # given
@@ -147,23 +113,11 @@ class TestValidator(TestCase):
             {'required': True}
         ]})
 
-        # when
-        result = validator.validate_extracted_row(['test', 'test', '  ', 't'])
-
-        # then
-        self.assertTrue(result)
-
-        # when
-        result = validator.validate_extracted_row(['test', 'test', 'test', 'test'])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['te', 'te', 'testtest', 'te'])
-
-        # then
-        self.assertFalse(result)
+        self.__repeat(validator, [
+            {'values': ['test', 'test', '  ', 't'], 'result': True},
+            {'values': ['test', 'test', 'test', 'test'], 'result': False},
+            {'values': ['te', 'te', 'testtest', 'te'], 'result': False}
+        ])
 
     def test_validate_extracted_row_possible_values(self):
         # given
@@ -174,29 +128,12 @@ class TestValidator(TestCase):
             {'values': ['test', 'test2']}
         ]})
 
-        # when
-        result = validator.validate_extracted_row(['test2', 'test3', ' ', 'test2'])
-
-        # then
-        self.assertTrue(result)
-
-        # when
-        result = validator.validate_extracted_row(['test3', 'test3', ' ', 'test2'])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['test2', 'test4', ' ', 'test2'])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['test2', 'test3', 'test3', 'test2'])
-
-        # then
-        self.assertFalse(result)
+        self.__repeat(validator, [
+            {'values': ['test2', 'test3', ' ', 'test2'], 'result': True},
+            {'values': ['test3', 'test3', ' ', 'test2'], 'result': False},
+            {'values': ['test2', 'test4', ' ', 'test2'], 'result': False},
+            {'values': ['test2', 'test3', 'test3', 'test2'], 'result': False}
+        ])
 
     def test_validate_extracted_row_pattern(self):
         # given
@@ -207,29 +144,12 @@ class TestValidator(TestCase):
             {'pattern': '^[A-Za-z0-9]+$'},
         ]})
 
-        # when
-        result = validator.validate_extracted_row(['ABC', '1234', ' ', 'Test12'])
-
-        # then
-        self.assertTrue(result)
-
-        # when
-        result = validator.validate_extracted_row(['ABc', '1234', ' ', 'Test12'])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['ABC', '1234a', ' ', 'Test12'])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['ABC', '1234', ' ', 'Test#12'])
-
-        # then
-        self.assertFalse(result)
+        self.__repeat(validator, [
+            {'values': ['ABC', '1234', ' ', 'Test12'], 'result': True},
+            {'values': ['ABc', '1234', ' ', 'Test12'], 'result': False},
+            {'values': ['ABC', '1234a', ' ', 'Test12'], 'result': False},
+            {'values': ['ABC', '1234', ' ', 'Test#12'], 'result': False},
+        ])
 
     def test_validate_extracted_row_pattern(self):
         # given
@@ -239,26 +159,17 @@ class TestValidator(TestCase):
             {'integer': True}
         ]})
 
-        # when
-        result = validator.validate_extracted_row(['1234', 'ABC', ' ', ])
+        self.__repeat(validator, [
+            {'values': ['1234', 'ABC', ' '], 'result': True},
+            {'values': ['1234', 'ABC', '123'], 'result': True},
+            {'values': ['123H', 'ABC', ' '], 'result': False},
+            {'values': ['1234', 'ABC', 'ABC'], 'result': False}
+        ])
 
-        # then
-        self.assertTrue(result)
+    def __repeat(self, validator, test_cases):
+        for test_case in test_cases:
+            # when
+            result = validator.validate_extracted_row(test_case['values'])
 
-        # when
-        result = validator.validate_extracted_row(['1234', 'ABC', '123', ])
-
-        # then
-        self.assertTrue(result)
-
-        # when
-        result = validator.validate_extracted_row(['123H', 'ABC', ' ', ])
-
-        # then
-        self.assertFalse(result)
-
-        # when
-        result = validator.validate_extracted_row(['1234', 'ABC', 'ABC', ])
-
-        # then
-        self.assertFalse(result)
+            # then
+            self.assertTrue(result == test_case['result'])
