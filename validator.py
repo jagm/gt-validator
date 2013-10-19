@@ -45,7 +45,8 @@ class Validator:
 
     def validate_data(self, data):
         result = True
-        for row in data:
+        for i, row in enumerate(data):
+            self.logger.info("****************** Record #%s validation ******************" % (i + 1))
             result = self.validate_row(row) and result
 
         return result
