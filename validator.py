@@ -3,6 +3,7 @@
 
 import json
 import logging
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -16,7 +17,7 @@ class Validator:
 
     def __log(self, result, message):
         if not result:
-            self.logger.warning(message)
+            self.logger.error(message)
 
     def __get_delimiter(self):
         return self.__configuration.get('delimiter', '|')
@@ -41,6 +42,9 @@ class Validator:
     def __get_name_for_log(self, definition):
         return definition.get('name', '<unknown>')
 
+    def __should_be_validated(self, definition, value, condition=True):
+        return (self.__is_required(definition) or len(value.strip())) and condition
+
     def __validate_field_required(self, definition, value):
         result = not self.__is_required(definition) or value.strip()
         self.__log(result, "Missing %s field" % self.__get_name_for_log(definition))
@@ -55,8 +59,8 @@ class Validator:
 
     def __validate_field_min_length(self, definition, value):
         result = True
-        length = len(value.strip())
-        if self.__is_required(definition) or length:
+        if self.__should_be_validated(definition, value):
+            length = len(value.strip())
             min_length = definition.get('minLength', 0)
             result = length >= min_length
             self.__log(result, 'Too short %s field: %s (expected min length: %s)' % (self.__get_name_for_log(definition), length, min_length))
@@ -65,9 +69,23 @@ class Validator:
     def __validate_field_possible_values(self, definition, value):
         result = True
         possible_values = definition.get('values', [])
-        if value.strip() and possible_values:
+        if self.__should_be_validated(definition, value, possible_values):
             result = value in possible_values
             self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (self.__get_name_for_log(definition), value, possible_values))
+        return result
+
+    def __validate_field_pattern(self, definition, value):
+        result = True
+        pattern = definition.get('pattern', '')
+
+        if pattern and pattern[0] == pattern[-1] == '/':
+            self.logger.warning('Unexpected regex delimiters: %s', pattern)
+        if pattern and (pattern[0] != '^' or pattern[-1] != '$'):
+            self.logger.warning('Missing ^$ delimiters for regex: %s', pattern)
+
+        if self.__should_be_validated(definition, value, pattern):
+            result = re.match(pattern, value)
+            self.__log(result, "%s value doesn't match pattern: %s (pattern: %s)" % (self.__get_name_for_log(definition), value, pattern))
         return result
 
     def __set_default_field_name(self, definition, index):
@@ -83,6 +101,7 @@ class Validator:
         result = self.__validate_field_max_length(definition, field) and result
         result = self.__validate_field_min_length(definition, field) and result
         result = self.__validate_field_possible_values(definition, field) and result
+        result = self.__validate_field_pattern(definition, field) and result
         return result
 
     def validate_extracted_row(self, row):

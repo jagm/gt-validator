@@ -197,3 +197,36 @@ class TestValidator(TestCase):
 
         # then
         self.assertFalse(result)
+
+    def test_validate_extracted_row_pattern(self):
+        # given
+        validator = Validator({'size': 4, 'columns': [
+            {'pattern': '^[A-Z]+$', 'required': True},
+            {'pattern': '^[0-9]+$', 'required': True},
+            {'pattern': '^[a-z]+$'},
+            {'pattern': '^[A-Za-z0-9]+$'},
+        ]})
+
+        # when
+        result = validator.validate_extracted_row(['ABC', '1234', ' ', 'Test12'])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row(['ABc', '1234', ' ', 'Test12'])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['ABC', '1234a', ' ', 'Test12'])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['ABC', '1234', ' ', 'Test#12'])
+
+        # then
+        self.assertFalse(result)
