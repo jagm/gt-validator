@@ -3,12 +3,19 @@ gt-validator
 
 gt-validator is a simple validator for flat data files. Each line in data file should contain one record. Columns are pipe-separated (it can be changed in json config file).
 
+1. [Installation](#installation)
+2. [Configuration](#configuration)
+3. [Column validator configuration](#column_validator)
+4. [Usage](#usage)
 
+
+<a name="installation"/>
 Installation
 ------------
 *TBD*
 
 
+<a name="configuration"/>
 Configuration
 -------------
 
@@ -62,6 +69,7 @@ Column validator configuration
 |`integer`|boolean|Determines if expected value must contain only digits.|`false`|
 
 
+<a name="usage"/>
 Usage
 -------
 TBD
