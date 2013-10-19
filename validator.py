@@ -13,8 +13,16 @@ class Validator:
     def __get_delimiter(self):
         return self.__configuration.get('delimiter', '|')
 
+    def __get_expected_size(self):
+        return self.__configuration.get('size', 0)
+
+    def __validate_row_size(self, row):
+        return len(row) == self.__get_expected_size()
+
     def validate_extracted_row(self, row):
-        return True
+        result = True
+        result = result and self.__validate_row_size(row)
+        return result
 
     def validate_row(self, row):
         return self.validate_extracted_row(row.split(self.__get_delimiter()))

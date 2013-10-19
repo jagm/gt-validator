@@ -4,9 +4,11 @@ from validator import Validator
 
 
 class TestValidator(TestCase):
+    __default_validator = Validator({})
+
     def test_validate_data_empty(self):
         # given
-        validator = Validator({})
+        validator = self.__default_validator
 
         # when
         result = validator.validate_data([])
@@ -16,7 +18,7 @@ class TestValidator(TestCase):
 
     def test_validate_data(self):
         # given
-        validator = Validator({})
+        validator = self.__default_validator
 
         # when
         result = validator.validate_data(['test', 'test2'])
@@ -64,3 +66,23 @@ class TestValidator(TestCase):
 
         # then
         validator.validate_extracted_row.assert_called_once_with(['test|te', 'st2'])
+
+    def test_validate_extracted_row_correct_size(self):
+        # given
+        validator = Validator({'size': 2})
+
+        # when
+        result = validator.validate_extracted_row(['test', 'test2'])
+
+        # then
+        self.assertTrue(result)
+
+    def test_validate_extracted_row_wrong_size(self):
+        # given
+        validator = Validator({'size': 3})
+
+        # when
+        result = validator.validate_extracted_row(['test', 'test2'])
+
+        # then
+        self.assertFalse(result)
