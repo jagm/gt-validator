@@ -11,7 +11,7 @@ class TestLoad_data_file(TestCase):
         ]
 
         # when
-        data = validator.load_data_file('test/test_flat_data.dat')
+        data = validator.load_data_file('test/data/test_flat_data.dat')
 
         #then
         for i, line in enumerate(data):
