@@ -2,6 +2,7 @@ from unittest import TestCase
 
 import validator
 
+
 class TestLoad_configuration(TestCase):
     def test_load_configuration(self):
         # when
