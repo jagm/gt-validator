@@ -6,7 +6,7 @@ gt-validator is a simple validator for flat data files. Each line in data file s
 
 Installation
 ------------
-*TBD*
+**TBD**
 
 
 Configuration
@@ -64,4 +64,4 @@ Column validator configuration
 
 Usage
 -------
-TBD
+**TBD**
