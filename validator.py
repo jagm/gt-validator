@@ -41,12 +41,20 @@ class Validator:
             result = length >= min_length
         return result
 
+    def __validate_field_possible_values(self, definition, value):
+        result = True
+        possible_values = definition.get('values', [])
+        if value.strip() and possible_values:
+            result = value in possible_values
+        return result
+
     def validate_field(self, field, index):
         definition = self.__get_column_definition(index)
         result = True
         result = self.__validate_field_required(definition, field) and result
         result = self.__validate_field_max_length(definition, field) and result
         result = self.__validate_field_min_length(definition, field) and result
+        result = self.__validate_field_possible_values(definition, field) and result
         return result
 
     def validate_extracted_row(self, row):

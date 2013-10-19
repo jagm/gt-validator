@@ -164,3 +164,36 @@ class TestValidator(TestCase):
 
         # then
         self.assertFalse(result)
+
+    def test_validate_extracted_row_possible_values(self):
+        # given
+        validator = Validator({'size': 4, 'columns': [
+            {'values': ['test', 'test2'], 'required': True},
+            {'values': ['test', 'test2', 'test3'], 'required': True},
+            {'values': ['test', 'test2']},
+            {'values': ['test', 'test2']}
+        ]})
+
+        # when
+        result = validator.validate_extracted_row(['test2', 'test3', ' ', 'test2'])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row(['test3', 'test3', ' ', 'test2'])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['test2', 'test4', ' ', 'test2'])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['test2', 'test3', 'test3', 'test2'])
+
+        # then
+        self.assertFalse(result)
