@@ -10,8 +10,15 @@ class Validator:
     def __init__(self, configuration):
         self.__configuration = configuration
 
-    def validate_data(self, data):
+    def validate_row(self, row):
         return True
+
+    def validate_data(self, data):
+        result = True
+        for row in data:
+            result = self.validate_row(row) and result
+
+        return result
 
 
 def load_configuration(config_file='data/config.json'):
