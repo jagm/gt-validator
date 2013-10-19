@@ -12,7 +12,7 @@ gt-validator is a simple validator for flat data files. Each line in data file s
 <a name="installation"/>
 Installation
 ------------
-*TBD*
+**TBD**
 
 
 <a name="configuration"/>
@@ -72,4 +72,4 @@ Column validator configuration
 <a name="usage"/>
 Usage
 -------
-TBD
+**TBD**
