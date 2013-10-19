@@ -15,9 +15,40 @@ class Validator:
         self.__configuration = configuration
         self.logger = logging.getLogger('Validator')
 
+    def validate_field(self, field, index):
+        definition = self.__get_column_definition(index)
+        self.__set_default_field_name(definition, index)
+
+        result = True
+        result = self.__validate_field_required(definition, field) and result
+        result = self.__validate_field_max_length(definition, field) and result
+        result = self.__validate_field_min_length(definition, field) and result
+        result = self.__validate_field_possible_values(definition, field) and result
+        result = self.__validate_field_pattern(definition, field) and result
+        result = self.__validate_field_integer(definition, field) and result
+        return result
+
+    def validate_extracted_row(self, row):
+        result = True
+        result = self.__validate_row_size(row) and result
+        for i, field in enumerate(row):
+            result = self.validate_field(field, i) and result
+
+        return result
+
+    def validate_row(self, row):
+        return self.validate_extracted_row(row.split(self.__get_delimiter()))
+
+    def validate_data(self, data):
+        result = True
+        for row in data:
+            result = self.validate_row(row) and result
+
+        return result
+
     def __log(self, result, message):
-        if not result:
-            self.logger.error(message)
+            if not result:
+                self.logger.error(message)
 
     def __get_delimiter(self):
         return self.__configuration.get('delimiter', '|')
@@ -54,7 +85,8 @@ class Validator:
         max_length = definition.get('maxLength', 0)
         length = len(value)
         result = not max_length or length <= max_length
-        self.__log(result, 'Too long %s field: %s (expected max length: %s)' % (self.__get_name_for_log(definition), length, max_length))
+        self.__log(result, 'Too long %s field: %s (expected max length: %s)' % (
+        self.__get_name_for_log(definition), length, max_length))
         return result
 
     def __validate_field_min_length(self, definition, value):
@@ -63,7 +95,8 @@ class Validator:
             length = len(value.strip())
             min_length = definition.get('minLength', 0)
             result = length >= min_length
-            self.__log(result, 'Too short %s field: %s (expected min length: %s)' % (self.__get_name_for_log(definition), length, min_length))
+            self.__log(result, 'Too short %s field: %s (expected min length: %s)' % (
+            self.__get_name_for_log(definition), length, min_length))
         return result
 
     def __validate_field_possible_values(self, definition, value):
@@ -71,7 +104,8 @@ class Validator:
         possible_values = definition.get('values', [])
         if self.__should_be_validated(definition, value, possible_values):
             result = value in possible_values
-            self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (self.__get_name_for_log(definition), value, possible_values))
+            self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (
+            self.__get_name_for_log(definition), value, possible_values))
         return bool(result)
 
     def __validate_pattern(self, definition, pattern, value):
@@ -104,37 +138,6 @@ class Validator:
     def __set_default_field_name(self, definition, index):
         if not definition.get('name', False):
             definition['name'] = '<Field #%s>' % index
-
-    def validate_field(self, field, index):
-        definition = self.__get_column_definition(index)
-        self.__set_default_field_name(definition, index)
-
-        result = True
-        result = self.__validate_field_required(definition, field) and result
-        result = self.__validate_field_max_length(definition, field) and result
-        result = self.__validate_field_min_length(definition, field) and result
-        result = self.__validate_field_possible_values(definition, field) and result
-        result = self.__validate_field_pattern(definition, field) and result
-        result = self.__validate_field_integer(definition, field) and result
-        return result
-
-    def validate_extracted_row(self, row):
-        result = True
-        result = self.__validate_row_size(row) and result
-        for i, field in enumerate(row):
-            result = self.validate_field(field, i) and result
-
-        return result
-
-    def validate_row(self, row):
-        return self.validate_extracted_row(row.split(self.__get_delimiter()))
-
-    def validate_data(self, data):
-        result = True
-        for row in data:
-            result = self.validate_row(row) and result
-
-        return result
 
 
 def load_configuration(config_file='data/config.json'):
