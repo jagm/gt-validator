@@ -16,12 +16,22 @@ class Validator:
     def __get_expected_size(self):
         return self.__configuration.get('size', 0)
 
+    def __get_column_definition(self, index):
+        columns = self.__configuration.get('columns', [])
+        return columns[index] if len(columns) > index else {}
+
     def __validate_row_size(self, row):
         return len(row) == self.__get_expected_size()
 
+    def validate_field(self, field, index):
+        definition = self.__get_column_definition(index)
+        return True
+
     def validate_extracted_row(self, row):
         result = True
-        result = result and self.__validate_row_size(row)
+        result = self.__validate_row_size(row) and result
+        for i, field in enumerate(row):
+            result = self.validate_field(field, i) and result
         return result
 
     def validate_row(self, row):

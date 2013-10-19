@@ -86,3 +86,17 @@ class TestValidator(TestCase):
 
         # then
         self.assertFalse(result)
+
+    def test_validate_extracted_row(self):
+        # given
+        validator = Validator({'size': 2})
+        validator.validate_field = MagicMock(return_value=True)
+
+        # when
+        result = validator.validate_extracted_row(['test', 'test2'])
+
+        # then
+        self.assertTrue(result)
+        validator.validate_field.assert_has_calls([call('test', 0), call('test2', 1)])
+        self.assertEqual(validator.validate_field.call_count, 2)
+
