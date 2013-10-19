@@ -20,21 +20,33 @@ class Validator:
         columns = self.__configuration.get('columns', [])
         return columns[index] if len(columns) > index else {}
 
+    def __is_required(self, definition):
+        return definition.get('required', False)
+
     def __validate_row_size(self, row):
         return len(row) == self.__get_expected_size()
 
     def __validate_field_required(self, definition, value):
-        return not definition.get('required', False) or value.strip()
+        return not self.__is_required(definition) or value.strip()
 
     def __validate_field_max_length(self, definition, value):
         max_length = definition.get('maxLength', 0)
         return not max_length or len(value) <= max_length
+
+    def __validate_field_min_length(self, definition, value):
+        result = True
+        length = len(value.strip())
+        if self.__is_required(definition) or length:
+            min_length = definition.get('minLength', 0)
+            result = length >= min_length
+        return result
 
     def validate_field(self, field, index):
         definition = self.__get_column_definition(index)
         result = True
         result = self.__validate_field_required(definition, field) and result
         result = self.__validate_field_max_length(definition, field) and result
+        result = self.__validate_field_min_length(definition, field) and result
         return result
 
     def validate_extracted_row(self, row):

@@ -137,3 +137,30 @@ class TestValidator(TestCase):
 
         # then
         self.assertFalse(result)
+
+    def test_validate_extracted_row_min_length(self):
+        # given
+        validator = Validator({'size': 4, 'columns': [
+            {'minLength': 2, 'required': True},
+            {'minLength': 4, 'required': True},
+            {'minLength': 6},
+            {'required': True}
+        ]})
+
+        # when
+        result = validator.validate_extracted_row(['test', 'test', '  ', 't'])
+
+        # then
+        self.assertTrue(result)
+
+        # when
+        result = validator.validate_extracted_row(['test', 'test', 'test', 'test'])
+
+        # then
+        self.assertFalse(result)
+
+        # when
+        result = validator.validate_extracted_row(['te', 'te', 'testtest', 'te'])
+
+        # then
+        self.assertFalse(result)
