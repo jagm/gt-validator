@@ -166,8 +166,20 @@ def load_data_file(data_file):
 
 
 def main(data_file='data/flat_data.dat'):
-    configuration = load_configuration()
-    data = load_data_file(data_file)
+    configuration = {}
+    try:
+        configuration = load_configuration('data/config.json')
+    except IOError:
+        logging.error("Cannot open file: %s" % 'data/config.json')
+        exit()
+
+    data = []
+    try:
+        data = load_data_file(data_file)
+    except IOError:
+        logging.error("Cannot open file: %s" % data_file)
+        exit()
+
     validator = Validator(configuration)
     validator.validate_data(data)
 
