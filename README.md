@@ -4,6 +4,11 @@ gt-validator
 gt-validator is a simple validator for flat data files. Each line in data file should contain one record. Columns are pipe-separated (it can be changed in json config file).
 
 
+Installation
+------------
+*TBD*
+
+
 Configuration
 -------------
 
@@ -55,3 +60,8 @@ Column validator configuration
 |`pattern`|string|Regexp pattern to validate column value. Pattern should not contain regex delimiters at start and end. Please notice that usually the pattern has to contain `^` at the beginning and `$` at the end to correct working.|If not provided, the validator will skip this validation.|
 |`date`|string|Date format for validation. This validator can be used to validate if provided value is a correct date in the required format. [Python directives](http://docs.python.org/2/library/datetime.html#strftime-strptime-behavior) have to be used for this validator.|If not provided, the validator will skip this validation.|
 |`integer`|boolean|Determines if expected value must contain only digits.|`false`|
+
+
+Usage
+-------
+TBD
