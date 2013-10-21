@@ -1,5 +1,6 @@
 from unittest import TestCase
 from mock import MagicMock, call
+from data.model import Data
 from validator.validator import Validator
 
 
@@ -11,13 +12,13 @@ class TestValidator(TestCase):
         validator = self.__default_validator
 
         # when
-        result = validator.validate_data([])
+        result = validator.validate_data(Data([]))
 
         # then
         self.assertTrue(result)
 
         # when
-        result = validator.validate_data(['test', 'test2'])
+        result = validator.validate_data(Data(['test', 'test2']))
 
         # then
         self.assertFalse(result)
@@ -34,7 +35,7 @@ class TestValidator(TestCase):
         validator.validate_row = MagicMock(side_effect=return_value)
 
         # when
-        result = validator.validate_data(['test', 'test2'])
+        result = validator.validate_data(Data(['test', 'test2']))
 
         # then
         self.assertFalse(result)

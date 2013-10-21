@@ -4,6 +4,7 @@
 import sys
 import json
 import logging
+from data.model import Data
 
 from validator.validator import Validator
 
@@ -33,8 +34,9 @@ def main(data_file='examples/flat_data.dat'):
         logging.error("Cannot open file: %s" % data_file)
         exit()
 
+    data_object = Data(data)
     validator = Validator(configuration)
-    validator.validate_data(data)
+    validator.validate_data(data_object)
 
 
 if __name__ == '__main__':
