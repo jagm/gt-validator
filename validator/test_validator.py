@@ -34,7 +34,7 @@ class TestValidator(TestCase):
         validator = Validator()
         validator.validate_record = MagicMock(side_effect=return_value)
         data = Data(['test', 'test2'])
-        expected_calls = [call(record) for record in data.getRecords()]
+        expected_calls = [call(record) for record in data.get_records()]
 
         # when
         result = validator.validate_data(data)

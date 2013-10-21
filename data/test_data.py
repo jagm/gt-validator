@@ -5,7 +5,7 @@ from data.model import Record
 class TestRecord(TestCase):
     def test_validate_row_default_delimiter(self):
         # when
-        fields = Record('test|test2', {}).getFields()
+        fields = Record('test|test2', {}).get_fields()
 
         # then
         self.assertEqual(len(fields), 2)
@@ -13,7 +13,7 @@ class TestRecord(TestCase):
 
     def test_validate_row_delimiter(self):
         # when
-        fields = Record('test|te#st2', {'delimiter': '#'}).getFields()
+        fields = Record('test|te#st2', {'delimiter': '#'}).get_fields()
 
         # then
         self.assertEqual(len(fields), 2)

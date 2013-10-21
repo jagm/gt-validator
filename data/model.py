@@ -8,7 +8,7 @@ class Data:
         self.__configuration = configuration
         self.__records = [Record(record, configuration) for record in data]
 
-    def getRecords(self):
+    def get_records(self):
         return self.__records
 
 
@@ -23,7 +23,7 @@ class Record:
 
         self.__fields = [Field(value, index, get_meta(index)) for index, value in enumerate(data.split(delimiter))]
 
-    def getFields(self):
+    def get_fields(self):
         return self.__fields
 
     def get_expected_size(self):

@@ -31,11 +31,11 @@ class Validator:
         return result
 
     def validate_record(self, record):
-        return self.validate_extracted_record(record.getFields()) and self.__validate_record_size(record)
+        return self.validate_extracted_record(record.get_fields()) and self.__validate_record_size(record)
 
     def validate_data(self, data):
         result = True
-        for i, record in enumerate(data.getRecords()):
+        for i, record in enumerate(data.get_records()):
             self.logger.info("****************** Record #%s validation ******************" % (i + 1))
             result = self.validate_record(record) and result
 
@@ -50,7 +50,7 @@ class Validator:
 
     def __validate_record_size(self, record):
         expected_size = record.get_expected_size()
-        size = len(record.getFields())
+        size = len(record.get_fields())
         result = size == expected_size
         self.__log(result, "Incorrect row size: %s (expected: %s)" % (size, expected_size))
         return result
