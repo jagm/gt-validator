@@ -1,7 +1,7 @@
 from unittest import TestCase
-import validator
+from main import main
 
 
 class TestMain(TestCase):
     def test_main(self):
-        validator.main()
+        main()

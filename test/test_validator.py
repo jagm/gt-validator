@@ -1,6 +1,6 @@
 from unittest import TestCase
 from mock import MagicMock, call
-from validator import Validator
+from validator.validator import Validator
 
 
 class TestValidator(TestCase):

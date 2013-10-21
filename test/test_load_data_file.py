@@ -1,5 +1,5 @@
 from unittest import TestCase
-import validator
+from main import load_data_file
 
 
 class TestLoad_data_file(TestCase):
@@ -11,7 +11,7 @@ class TestLoad_data_file(TestCase):
         ]
 
         # when
-        data = validator.load_data_file('test/data/test_flat_data.dat')
+        data = load_data_file('test/data/test_flat_data.dat')
 
         #then
         for i, line in enumerate(data):
