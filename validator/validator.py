@@ -8,8 +8,7 @@ logging.basicConfig(level=logging.DEBUG)
 class Validator:
     """Validator class validates provided data"""
 
-    def __init__(self, configuration):
-        self.__configuration = configuration
+    def __init__(self):
         self.logger = logging.getLogger('Validator')
 
     def validate_field(self, field):
@@ -26,14 +25,13 @@ class Validator:
 
     def validate_extracted_record(self, record):
         result = True
-        result = self.__validate_record_size(record) and result
         for field in record:
             result = self.validate_field(field) and result
 
         return result
 
     def validate_record(self, record):
-        return self.validate_extracted_record(record.getFields())
+        return self.validate_extracted_record(record.getFields()) and self.__validate_record_size(record)
 
     def validate_data(self, data):
         result = True
@@ -47,15 +45,12 @@ class Validator:
         if not result:
             self.logger.error(message)
 
-    def __get_expected_size(self):
-        return self.__configuration.get('size', 0)
-
     def __is_required(self, definition):
         return definition.get('required', False)
 
-    def __validate_record_size(self, row):
-        expected_size = self.__get_expected_size()
-        size = len(row)
+    def __validate_record_size(self, record):
+        expected_size = record.get_expected_size()
+        size = len(record.getFields())
         result = size == expected_size
         self.__log(result, "Incorrect row size: %s (expected: %s)" % (size, expected_size))
         return result

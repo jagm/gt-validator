@@ -34,8 +34,8 @@ def main(data_file='examples/flat_data.dat'):
         logging.error("Cannot open file: %s" % data_file)
         exit()
 
-    data_object = Data(data)
-    validator = Validator(configuration)
+    data_object = Data(data, configuration)
+    validator = Validator()
     validator.validate_data(data_object)
 
 

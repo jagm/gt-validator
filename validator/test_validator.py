@@ -5,7 +5,7 @@ from validator.validator import Validator
 
 
 class TestValidator(TestCase):
-    __default_validator = Validator({})
+    __default_validator = Validator()
 
     def test_validate_data_empty(self):
         # given
@@ -31,7 +31,7 @@ class TestValidator(TestCase):
             else:
                 return False
 
-        validator = Validator({})
+        validator = Validator()
         validator.validate_record = MagicMock(side_effect=return_value)
         data = Data(['test', 'test2'])
         expected_calls = [call(record) for record in data.getRecords()]
@@ -47,7 +47,7 @@ class TestValidator(TestCase):
     def test_validate_extracted_row_size(self):
         # given
         configuration = {'size': 2}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': 'test|test2', 'result': True},
@@ -56,7 +56,7 @@ class TestValidator(TestCase):
 
     def test_validate_extracted_row(self):
         # given
-        validator = Validator({'size': 2})
+        validator = Validator()
         validator.validate_field = MagicMock(return_value=True)
 
         # when
@@ -70,7 +70,7 @@ class TestValidator(TestCase):
     def test_validate_extracted_row_required(self):
         # given
         configuration = {'size': 2, 'columns': [{'required': True}, {'required': False}]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': 'test|', 'result': True},
@@ -80,7 +80,7 @@ class TestValidator(TestCase):
     def test_validate_extracted_row_max_length(self):
         # given
         configuration = {'size': 3, 'columns': [{'maxLength': 4}, {'maxLength': 2}, {}]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': 'test|te|test1234', 'result': True},
@@ -96,7 +96,7 @@ class TestValidator(TestCase):
             {'minLength': 6},
             {'required': True}
         ]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': 'test|test|  |t', 'result': True},
@@ -112,7 +112,7 @@ class TestValidator(TestCase):
             {'values': ['test', 'test2']},
             {'values': ['test', 'test2']}
         ]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': 'test2|test3| |test2', 'result': True},
@@ -129,7 +129,7 @@ class TestValidator(TestCase):
             {'pattern': '^[a-z]+$'},
             {'pattern': '^[A-Za-z0-9]+$'},
         ]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': 'ABC|1234| |Test12', 'result': True},
@@ -145,7 +145,7 @@ class TestValidator(TestCase):
             {'integer': False, 'required': True},
             {'integer': True}
         ]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': '1234|ABC| ', 'result': True},
@@ -161,7 +161,7 @@ class TestValidator(TestCase):
             {'required': True},
             {'date': '%Y%m%d'}
         ]}
-        validator = Validator(configuration)
+        validator = Validator()
 
         self.__repeat(validator, configuration, [
             {'values': '20131012|ABC| ', 'result': True},
@@ -174,7 +174,7 @@ class TestValidator(TestCase):
     def __repeat(self, validator, configuration, test_cases):
         for test_case in test_cases:
             # when
-            result = validator.validate_extracted_record(Record(test_case['values'], configuration).getFields())
+            result = validator.validate_record(Record(test_case['values'], configuration))
 
             # then
             self.assertTrue(result == test_case['result'])

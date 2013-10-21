@@ -12,6 +12,7 @@ class Data:
 
 class Record:
     def __init__(self, data, configuration):
+        self.__expected_size = configuration.get('size', 0)
         delimiter = configuration.get('delimiter', DELIMITER)
         columns = configuration.get('columns', [])
 
@@ -20,9 +21,11 @@ class Record:
 
         self.__fields = [Field(value, index, get_meta(index)) for index, value in enumerate(data.split(delimiter))]
 
-
     def getFields(self):
         return self.__fields
+
+    def get_expected_size(self):
+        return self.__expected_size
 
 
 class Field:
