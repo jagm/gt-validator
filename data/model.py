@@ -4,17 +4,35 @@ DELIMITER = '|'
 class Data:
     def __init__(self, data, configuration={}):
         self.__configuration = configuration
-        self.__delimiter = self.__configuration.get('delimiter', DELIMITER)
-        self.__data = data
+        self.__records = [Record(record, configuration) for record in data]
 
     def getRecords(self):
-        return (Record(record, self.__delimiter) for record in self.__data)
+        return self.__records
 
 
 class Record:
-    def __init__(self, data, delimiter=DELIMITER):
-        self.__data = data
-        self.__delimiter = delimiter
+    def __init__(self, data, configuration):
+        delimiter = configuration.get('delimiter', DELIMITER)
+        columns = configuration.get('columns', [])
+
+        def get_meta(index):
+            return columns[index] if len(columns) > index else {}
+
+        self.__fields = [Field(value, get_meta(index)) for index, value in enumerate(data.split(delimiter))]
+
 
     def getFields(self):
-        return self.__data.split(self.__delimiter)
+        return self.__fields
+
+
+class Field:
+
+    def __init__(self, value, meta):
+        self.__value = value
+        self.__meta = meta
+
+    def get_value(self):
+        return self.__value
+
+    def get_meta(self):
+        return self.__meta

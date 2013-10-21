@@ -17,13 +17,13 @@ class Validator:
         self.__set_default_field_name(definition, index)
 
         result = True
-        result = self.__validate_field_required(definition, field) and result
-        result = self.__validate_field_max_length(definition, field) and result
-        result = self.__validate_field_min_length(definition, field) and result
-        result = self.__validate_field_possible_values(definition, field) and result
-        result = self.__validate_field_pattern(definition, field) and result
-        result = self.__validate_field_integer(definition, field) and result
-        result = self.__validate_field_date(definition, field) and result
+        result = self.__validate_field_required(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_max_length(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_min_length(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_possible_values(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_pattern(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_integer(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_date(field.get_meta(), field.get_value()) and result
 
         return result
 
