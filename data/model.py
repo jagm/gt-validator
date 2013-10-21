@@ -2,7 +2,9 @@ DELIMITER = '|'
 
 
 class Data:
-    def __init__(self, data, configuration={}):
+    def __init__(self, data, configuration=None):
+        if not configuration:
+            configuration = {}
         self.__configuration = configuration
         self.__records = [Record(record, configuration) for record in data]
 
@@ -29,7 +31,6 @@ class Record:
 
 
 class Field:
-
     def __init__(self, value, index, meta):
         self.__value = value
         self.__meta = meta

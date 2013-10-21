@@ -1,6 +1,6 @@
 from unittest import TestCase
 from mock import MagicMock, call
-from data.model import Data, Record, Field
+from data.model import Data, Record
 from validator.validator import Validator
 
 
