@@ -19,7 +19,7 @@ Installation
 Configuration
 -------------
 
-Configuration example can be found in `data/config.json`
+Configuration example can be found in `examples/config.json`
 ```json
 {
     "size": 2,
