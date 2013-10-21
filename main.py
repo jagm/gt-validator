@@ -10,7 +10,7 @@ from validator.validator import Validator
 logging.basicConfig(level=logging.DEBUG)
 
 
-def load_configuration(config_file='data/config.json'):
+def load_configuration(config_file='examples/config.json'):
     return json.load(open(config_file))
 
 
@@ -18,12 +18,12 @@ def load_data_file(data_file):
     return (line.rstrip('\n') for line in open(data_file, 'r'))
 
 
-def main(data_file='data/flat_data.dat'):
+def main(data_file='examples/flat_data.dat'):
     configuration = {}
     try:
-        configuration = load_configuration('data/config.json')
+        configuration = load_configuration('examples/config.json')
     except IOError:
-        logging.error("Cannot open file: %s" % 'data/config.json')
+        logging.error("Cannot open file: %s" % 'examples/config.json')
         exit()
 
     data = []
