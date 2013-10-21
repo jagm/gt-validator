@@ -12,26 +12,23 @@ class Validator:
         self.__configuration = configuration
         self.logger = logging.getLogger('Validator')
 
-    def validate_field(self, field, index):
-        definition = self.__get_column_definition(index)
-        self.__set_default_field_name(definition, index)
-
+    def validate_field(self, field):
         result = True
-        result = self.__validate_field_required(field.get_meta(), field.get_value()) and result
-        result = self.__validate_field_max_length(field.get_meta(), field.get_value()) and result
-        result = self.__validate_field_min_length(field.get_meta(), field.get_value()) and result
-        result = self.__validate_field_possible_values(field.get_meta(), field.get_value()) and result
-        result = self.__validate_field_pattern(field.get_meta(), field.get_value()) and result
-        result = self.__validate_field_integer(field.get_meta(), field.get_value()) and result
-        result = self.__validate_field_date(field.get_meta(), field.get_value()) and result
+        result = self.__validate_field_required(field) and result
+        result = self.__validate_field_max_length(field) and result
+        result = self.__validate_field_min_length(field) and result
+        result = self.__validate_field_possible_values(field) and result
+        result = self.__validate_field_pattern(field) and result
+        result = self.__validate_field_integer(field) and result
+        result = self.__validate_field_date(field) and result
 
         return result
 
     def validate_extracted_record(self, record):
         result = True
         result = self.__validate_record_size(record) and result
-        for i, field in enumerate(record):
-            result = self.validate_field(field, i) and result
+        for field in record:
+            result = self.validate_field(field) and result
 
         return result
 
@@ -47,15 +44,11 @@ class Validator:
         return result
 
     def __log(self, result, message):
-            if not result:
-                self.logger.error(message)
+        if not result:
+            self.logger.error(message)
 
     def __get_expected_size(self):
         return self.__configuration.get('size', 0)
-
-    def __get_column_definition(self, index):
-        columns = self.__configuration.get('columns', [])
-        return columns[index] if len(columns) > index else {}
 
     def __is_required(self, definition):
         return definition.get('required', False)
@@ -67,84 +60,85 @@ class Validator:
         self.__log(result, "Incorrect row size: %s (expected: %s)" % (size, expected_size))
         return result
 
-    def __get_name_for_log(self, definition):
-        return definition.get('name', '<unknown>')
-
     def __should_be_validated(self, definition, value, condition=True):
         return (self.__is_required(definition) or len(value.strip())) and condition
 
-    def __validate_field_required(self, definition, value):
-        result = not self.__is_required(definition) or value.strip()
-        self.__log(result, "Missing %s field" % self.__get_name_for_log(definition))
+    def __validate_field_required(self, field):
+        result = not self.__is_required(field.get_meta()) or field.get_value().strip()
+        self.__log(result, "Missing %s field" % field.get_name())
         return bool(result)
 
-    def __validate_field_max_length(self, definition, value):
-        max_length = definition.get('maxLength', 0)
-        length = len(value)
+    def __validate_field_max_length(self, field):
+        max_length = field.get_meta().get('maxLength', 0)
+        length = len(field.get_value())
         result = not max_length or length <= max_length
-        self.__log(result, 'Too long %s field: %s (expected max length: %s)' % (
-        self.__get_name_for_log(definition), length, max_length))
+        self.__log(result, 'Too long %s field: %s (expected max length: %s)' % (field.get_name(), length, max_length))
         return result
 
-    def __validate_field_min_length(self, definition, value):
+    def __validate_field_min_length(self, field):
+        meta_info = field.get_meta()
+        value = field.get_value()
         result = True
-        if self.__should_be_validated(definition, value):
+        if self.__should_be_validated(meta_info, value):
             length = len(value.strip())
-            min_length = definition.get('minLength', 0)
+            min_length = meta_info.get('minLength', 0)
             result = length >= min_length
-            self.__log(result, 'Too short %s field: %s (expected min length: %s)' % (
-            self.__get_name_for_log(definition), length, min_length))
+            self.__log(result,
+                       'Too short %s field: %s (expected min length: %s)' % (field.get_name(), length, min_length))
         return result
 
-    def __validate_field_possible_values(self, definition, value):
+    def __validate_field_possible_values(self, field):
+        meta_info = field.get_meta()
+        value = field.get_value()
         result = True
-        possible_values = definition.get('values', [])
-        if self.__should_be_validated(definition, value, possible_values):
+        possible_values = meta_info.get('values', [])
+        if self.__should_be_validated(meta_info, value, possible_values):
             result = value in possible_values
-            self.__log(result, 'Unexpected %s value: %s (acceptable values: %s)' % (
-            self.__get_name_for_log(definition), value, possible_values))
+            self.__log(result,
+                       'Unexpected %s value: %s (acceptable values: %s)' % (field.get_name(), value, possible_values))
         return bool(result)
 
-    def __validate_pattern(self, definition, pattern, value):
+    def __validate_pattern(self, field, pattern):
+        meta_info = field.get_meta()
+        value = field.get_value()
         result = True
-        if self.__should_be_validated(definition, value, pattern):
+        if self.__should_be_validated(meta_info, value, pattern):
             result = re.match(pattern, value)
-            self.__log(result, "%s value doesn't match pattern: %s (pattern: %s)" % (
-                self.__get_name_for_log(definition), value, pattern))
+            self.__log(result, "%s value doesn't match pattern: %s (pattern: %s)" % (field.get_name(), value, pattern))
         return bool(result)
 
-    def __validate_field_pattern(self, definition, value):
-        result = True
-        pattern = definition.get('pattern', '')
+    def __validate_field_pattern(self, field):
+        meta_info = field.get_meta()
+        pattern = meta_info.get('pattern', '')
 
         if pattern and pattern[0] == pattern[-1] == '/':
             self.logger.warning('Unexpected regex delimiters: %s', pattern)
         if pattern and (pattern[0] != '^' or pattern[-1] != '$'):
             self.logger.warning('Missing ^$ delimiters for regex: %s', pattern)
 
-        result = self.__validate_pattern(definition, pattern, value)
+        result = self.__validate_pattern(field, pattern)
         return bool(result)
 
-    def __validate_field_integer(self, definition, value):
+    def __validate_field_integer(self, field):
+        meta_info = field.get_meta()
+        value = field.get_value()
         result = True
-        is_integer = definition.get('integer', False)
+        is_integer = meta_info.get('integer', False)
         if is_integer:
-            result = self.__validate_pattern(definition, '^[0-9]+$', value)
-            self.__log(result, "Incorrect %s integer value: %s" % (self.__get_name_for_log(definition), value))
+            result = self.__validate_pattern(field, '^[0-9]+$')
+            self.__log(result, "Incorrect %s integer value: %s" % (field.get_name(), value))
         return bool(result)
 
-    def __validate_field_date(self, definition, value):
+    def __validate_field_date(self, field):
+        meta_info = field.get_meta()
+        value = field.get_value()
         result = True
-        date_format = definition.get('date', False)
-        if self.__should_be_validated(definition, value, date_format):
+        date_format = meta_info.get('date', False)
+        if self.__should_be_validated(meta_info, value, date_format):
             try:
                 date_string = datetime.datetime.strptime(value, date_format).strftime(date_format)
                 result = date_string == value
             except ValueError:
                 result = False
-            self.__log(result, "Incorrect %s date: %s (expected format: %s)" % (self.__get_name_for_log(definition), value, date_format))
+            self.__log(result, "Incorrect %s date: %s (expected format: %s)" % (field.get_name(), value, date_format))
         return bool(result)
-
-    def __set_default_field_name(self, definition, index):
-        if not definition.get('name', False):
-            definition['name'] = '<Field #%s>' % index

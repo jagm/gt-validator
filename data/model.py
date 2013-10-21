@@ -18,7 +18,7 @@ class Record:
         def get_meta(index):
             return columns[index] if len(columns) > index else {}
 
-        self.__fields = [Field(value, get_meta(index)) for index, value in enumerate(data.split(delimiter))]
+        self.__fields = [Field(value, index, get_meta(index)) for index, value in enumerate(data.split(delimiter))]
 
 
     def getFields(self):
@@ -27,12 +27,16 @@ class Record:
 
 class Field:
 
-    def __init__(self, value, meta):
+    def __init__(self, value, index, meta):
         self.__value = value
         self.__meta = meta
+        self.__index = index
 
     def get_value(self):
         return self.__value
 
     def get_meta(self):
         return self.__meta
+
+    def get_name(self):
+        return self.__meta.get('name', '<Field #%s>' % self.__index)

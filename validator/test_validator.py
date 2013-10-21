@@ -64,7 +64,7 @@ class TestValidator(TestCase):
 
         # then
         self.assertTrue(result)
-        validator.validate_field.assert_has_calls([call('test', 0), call('test2', 1)])
+        validator.validate_field.assert_has_calls([call('test'), call('test2')])
         self.assertEqual(validator.validate_field.call_count, 2)
 
     def test_validate_extracted_row_required(self):
