@@ -1,6 +1,6 @@
 from unittest import TestCase
 from mock import MagicMock, call
-from data.model import Data
+from data.model import Data, Record
 from validator.validator import Validator
 
 
@@ -26,43 +26,45 @@ class TestValidator(TestCase):
     def test_validate_data(self):
         # given
         def return_value(data):
-            if data == 'test':
+            if data == ['test']:
                 return True
             else:
                 return False
 
         validator = Validator({})
-        validator.validate_row = MagicMock(side_effect=return_value)
+        validator.validate_extracted_record = MagicMock(side_effect=return_value)
+        data = ['test', 'test2']
+        expected_calls = [call([record]) for record in data]
 
         # when
-        result = validator.validate_data(Data(['test', 'test2']))
+        result = validator.validate_data(Data(data))
 
         # then
         self.assertFalse(result)
-        validator.validate_row.assert_has_calls([call('test'), call('test2')])
-        self.assertEqual(validator.validate_row.call_count, 2)
+        validator.validate_extracted_record.assert_has_calls(expected_calls)
+        self.assertEqual(validator.validate_extracted_record.call_count, 2)
 
     def test_validate_row_default_delimiter(self):
         # given
         validator = Validator({})
-        validator.validate_extracted_row = MagicMock(return_value=True)
+        validator.validate_extracted_record = MagicMock(return_value=True)
 
         # when
-        validator.validate_row('test|test2')
+        validator.validate_record(Record('test|test2'))
 
         # then
-        validator.validate_extracted_row.assert_called_once_with(['test', 'test2'])
+        validator.validate_extracted_record.assert_called_once_with(['test', 'test2'])
 
     def test_validate_row_delimiter(self):
         # given
         validator = Validator({'delimiter': '#'})
-        validator.validate_extracted_row = MagicMock(return_value=True)
+        validator.validate_extracted_record = MagicMock(return_value=True)
 
         # when
-        validator.validate_row('test|te#st2')
+        validator.validate_record(Record('test|te#st2', '#'))
 
         # then
-        validator.validate_extracted_row.assert_called_once_with(['test|te', 'st2'])
+        validator.validate_extracted_record.assert_called_once_with(['test|te', 'st2'])
 
     def test_validate_extracted_row_size(self):
         # given
@@ -79,7 +81,7 @@ class TestValidator(TestCase):
         validator.validate_field = MagicMock(return_value=True)
 
         # when
-        result = validator.validate_extracted_row(['test', 'test2'])
+        result = validator.validate_extracted_record(['test', 'test2'])
 
         # then
         self.assertTrue(result)
@@ -186,7 +188,7 @@ class TestValidator(TestCase):
     def __repeat(self, validator, test_cases):
         for test_case in test_cases:
             # when
-            result = validator.validate_extracted_row(test_case['values'])
+            result = validator.validate_extracted_record(test_case['values'])
 
             # then
             self.assertTrue(result == test_case['result'])

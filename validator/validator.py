@@ -27,31 +27,28 @@ class Validator:
 
         return result
 
-    def validate_extracted_row(self, row):
+    def validate_extracted_record(self, record):
         result = True
-        result = self.__validate_row_size(row) and result
-        for i, field in enumerate(row):
+        result = self.__validate_record_size(record) and result
+        for i, field in enumerate(record):
             result = self.validate_field(field, i) and result
 
         return result
 
-    def validate_row(self, row):
-        return self.validate_extracted_row(row.split(self.__get_delimiter()))
+    def validate_record(self, record):
+        return self.validate_extracted_record(record.getFields())
 
     def validate_data(self, data):
         result = True
         for i, record in enumerate(data.getRecords()):
             self.logger.info("****************** Record #%s validation ******************" % (i + 1))
-            result = self.validate_row(record) and result
+            result = self.validate_record(record) and result
 
         return result
 
     def __log(self, result, message):
             if not result:
                 self.logger.error(message)
-
-    def __get_delimiter(self):
-        return self.__configuration.get('delimiter', '|')
 
     def __get_expected_size(self):
         return self.__configuration.get('size', 0)
@@ -63,7 +60,7 @@ class Validator:
     def __is_required(self, definition):
         return definition.get('required', False)
 
-    def __validate_row_size(self, row):
+    def __validate_record_size(self, row):
         expected_size = self.__get_expected_size()
         size = len(row)
         result = size == expected_size
