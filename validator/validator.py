@@ -36,7 +36,10 @@ class Validator:
         result = True
         for i, record in enumerate(data.get_records()):
             self.logger.info("****************** Record #%s validation ******************" % (i + 1))
-            result = self.validate_record(record) and result
+            record_result = self.validate_record(record)
+            result = record_result and result
+            if record_result:
+                self.logger.info("*** Record #%s is valid" % (i + 1))
 
         return result
 
