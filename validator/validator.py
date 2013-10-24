@@ -23,15 +23,12 @@ class Validator:
 
         return result
 
-    def validate_extracted_record(self, record):
-        result = True
-        for field in record:
+    def validate_record(self, record):
+        result = self.__validate_record_size(record)
+        for field in record.get_fields():
             result = self.validate_field(field) and result
 
         return result
-
-    def validate_record(self, record):
-        return self.validate_extracted_record(record.get_fields()) and self.__validate_record_size(record)
 
     def validate_data(self, data):
         result = True

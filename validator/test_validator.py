@@ -44,51 +44,56 @@ class TestValidator(TestCase):
         validator.validate_record.assert_has_calls(expected_calls)
         self.assertEqual(validator.validate_record.call_count, 2)
 
-    def test_validate_extracted_row_size(self):
+    def test_validate_row_size(self):
         # given
         configuration = {'size': 2}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': 'test|test2', 'result': True},
             {'values': 'test|test2|test3', 'result': False}
         ])
 
-    def test_validate_extracted_row(self):
+    def test_validate_row(self):
         # given
+        record = Record('test|test2', {'size': 2})
+        expected_calls = [call(field) for field in record.get_fields()]
         validator = Validator()
         validator.validate_field = MagicMock(return_value=True)
 
         # when
-        result = validator.validate_extracted_record(['test', 'test2'])
+        result = validator.validate_record(record)
 
         # then
         self.assertTrue(result)
-        validator.validate_field.assert_has_calls([call('test'), call('test2')])
+        validator.validate_field.assert_has_calls(expected_calls)
         self.assertEqual(validator.validate_field.call_count, 2)
 
-    def test_validate_extracted_row_required(self):
+    def test_validate_row_required(self):
         # given
         configuration = {'size': 2, 'columns': [{'required': True}, {'required': False}]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': 'test|', 'result': True},
             {'values': ' |', 'result': False}
         ])
 
-    def test_validate_extracted_row_max_length(self):
+    def test_validate_row_max_length(self):
         # given
         configuration = {'size': 3, 'columns': [{'maxLength': 4}, {'maxLength': 2}, {}]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': 'test|te|test1234', 'result': True},
             {'values': 'test|tes|test1234', 'result': False},
             {'values': 'test1|te|test1234', 'result': False}
         ])
 
-    def test_validate_extracted_row_min_length(self):
+    def test_validate_row_min_length(self):
         # given
         configuration = {'size': 4, 'columns': [
             {'minLength': 2, 'required': True},
@@ -98,13 +103,14 @@ class TestValidator(TestCase):
         ]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': 'test|test|  |t', 'result': True},
             {'values': 'test|test|test|test', 'result': False},
             {'values': 'te|te|testtest|te', 'result': False}
         ])
 
-    def test_validate_extracted_row_possible_values(self):
+    def test_validate_row_possible_values(self):
         # given
         configuration = {'size': 4, 'columns': [
             {'values': ['test', 'test2'], 'required': True},
@@ -114,6 +120,7 @@ class TestValidator(TestCase):
         ]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': 'test2|test3| |test2', 'result': True},
             {'values': 'test3|test3| |test2', 'result': False},
@@ -121,7 +128,7 @@ class TestValidator(TestCase):
             {'values': 'test2|test3|test3|test2', 'result': False}
         ])
 
-    def test_validate_extracted_row_pattern(self):
+    def test_validate_row_pattern(self):
         # given
         configuration = {'size': 4, 'columns': [
             {'pattern': '^[A-Z]+$', 'required': True},
@@ -131,6 +138,7 @@ class TestValidator(TestCase):
         ]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': 'ABC|1234| |Test12', 'result': True},
             {'values': 'ABc|1234| |Test12', 'result': False},
@@ -138,7 +146,7 @@ class TestValidator(TestCase):
             {'values': 'ABC|1234| |Test#12', 'result': False},
         ])
 
-    def test_validate_extracted_row_integer(self):
+    def test_validate_row_integer(self):
         # given
         configuration = {'size': 3, 'columns': [
             {'integer': True, 'required': True},
@@ -147,6 +155,7 @@ class TestValidator(TestCase):
         ]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': '1234|ABC| ', 'result': True},
             {'values': '1234|ABC|123', 'result': True},
@@ -154,7 +163,7 @@ class TestValidator(TestCase):
             {'values': '1234|ABC|ABC', 'result': False}
         ])
 
-    def test_validate_extracted_row_date(self):
+    def test_validate_row_date(self):
         # given
         configuration = {'size': 3, 'columns': [
             {'date': '%Y%m%d', 'required': True},
@@ -163,6 +172,7 @@ class TestValidator(TestCase):
         ]}
         validator = Validator()
 
+        # when, then
         self.__repeat(validator, configuration, [
             {'values': '20131012|ABC| ', 'result': True},
             {'values': '20131012|ABC|ABC', 'result': False},
