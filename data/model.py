@@ -26,6 +26,11 @@ class Record:
     def get_fields(self):
         return self.__fields
 
+    def get_field(self, index):
+        if index < 0 or index >= len(self.__fields):
+            raise IndexError()
+        return self.__fields[index]
+
     def get_expected_size(self):
         return self.__expected_size
 
