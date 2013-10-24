@@ -11,7 +11,7 @@ class Validator:
     def __init__(self):
         self.logger = logging.getLogger('Validator')
 
-    def validate_field(self, field):
+    def validate_field(self, field, record):
         result = True
         result = self.__validate_field_required(field) and result
         result = self.__validate_field_max_length(field) and result
@@ -20,13 +20,14 @@ class Validator:
         result = self.__validate_field_pattern(field) and result
         result = self.__validate_field_integer(field) and result
         result = self.__validate_field_date(field) and result
+        result = self.__validate_field_required_if_empty(field, record) and result
 
         return result
 
     def validate_record(self, record):
         result = self.__validate_record_size(record)
         for field in record.get_fields():
-            result = self.validate_field(field) and result
+            result = self.validate_field(field, record) and result
 
         return result
 
@@ -133,4 +134,13 @@ class Validator:
             except ValueError:
                 result = False
             self.__log(result, "Incorrect %s date: %s (expected format: %s)" % (field.get_name(), value, date_format))
+        return bool(result)
+
+    def __validate_field_required_if_empty(self, field, record):
+        result = True
+        required_if_empty = field.get_meta().get('requiredIfEmpty', -1)
+        if required_if_empty >= 0:
+            related_field = record.get_field(required_if_empty)
+            result = field.get_value().strip() or related_field.get_value().strip()
+            self.__log(result, "Missing %s field (related on %s)" % (field.get_name(), related_field.get_name()))
         return bool(result)

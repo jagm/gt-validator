@@ -58,7 +58,7 @@ class TestValidator(TestCase):
     def test_validate_row(self):
         # given
         record = Record('test|test2', {'size': 2})
-        expected_calls = [call(field) for field in record.get_fields()]
+        expected_calls = [call(field, record) for field in record.get_fields()]
         validator = Validator()
         validator.validate_field = MagicMock(return_value=True)
 
@@ -180,6 +180,39 @@ class TestValidator(TestCase):
             {'values': '20131312|ABC|  ', 'result': False},
             {'values': '20131032|ABC|  ', 'result': False},
         ])
+
+    def test_validate_row_required_if_empty(self):
+        # given
+        configuration = {'size': 2, 'columns': [
+            {},
+            {'requiredIfEmpty': 0},
+        ]}
+        validator = Validator()
+
+        # when, then
+        self.__repeat(validator, configuration, [
+            {'values': '1|2', 'result': True},
+            {'values': '1|  ', 'result': True},
+            {'values': ' |2', 'result': True},
+            {'values': '|  ', 'result': False}
+        ])
+
+    def test_validate_row_required_if_empty_exception(self):
+        # given
+        configuration = {'size': 2, 'columns': [
+            {'requiredIfEmpty': 2},
+            {}
+        ]}
+        validator = Validator()
+
+        # when, then
+        try:
+            self.__repeat(validator, configuration, [
+                {'values': '1|2', 'result': False},
+            ])
+            self.fail("IndexError exception expected")
+        except IndexError:
+            pass # as expected
 
     def __repeat(self, validator, configuration, test_cases):
         for test_case in test_cases:

@@ -10,7 +10,8 @@
             "values": ["15", "19"],
             "pattern": "^[A-Za-z0-9]+$",
             "date": "%Y%m%d",
-            "integer": true
+            "integer": true,
+            "requiredIfEmpty": 1
         },
         {
             "name": "COLUMN_NAME_2",
