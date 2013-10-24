@@ -3,16 +3,16 @@ gt-validator
 
 gt-validator is a simple validator for flat data files. Each line in data file should contain one record. Columns are pipe-separated (it can be changed in json config file).
 
-1. [Installation](#installation)
+1. [Requirements](#requirements)
 2. [Configuration](#configuration)
 3. [Column validator configuration](#column_validator)
 4. [Usage](#usage)
 
 
-<a name="installation"/>
-Installation
+<a name="requirements"/>
+Requirements
 ------------
-**TBD**
+To use gt-validator, Python is required (tested on 2.7.3).
 
 
 <a name="configuration"/>
@@ -77,4 +77,8 @@ Usage
 Prepare configuration file for your data. Run validator using following command:
 ```
 ./main.py <path_to_data_file> [<path_to_config_file>]
+```
+or
+```
+python main.py <path_to_data_file> [<path_to_config_file>]
 ```
