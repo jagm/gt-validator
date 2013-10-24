@@ -26,10 +26,10 @@ class TestValidator(TestCase):
     def test_validate_data(self):
         # given
         def return_value(data):
-            if data == ['test']:
-                return True
-            else:
+            if data.get_fields()[0].get_value() == 'test':
                 return False
+            else:
+                return True
 
         validator = Validator()
         validator.validate_record = MagicMock(side_effect=return_value)
