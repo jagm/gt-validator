@@ -74,4 +74,7 @@ Column validator configuration
 <a name="usage"/>
 Usage
 -------
-**TBD**
+Prepare configuration file for your data. Run validator using following command:
+```
+./main.py <path_to_data_file> [<path_to_config_file>]
+```
