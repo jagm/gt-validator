@@ -214,6 +214,22 @@ class TestValidator(TestCase):
         except IndexError:
             pass # as expected
 
+    def test_validate_row_required_if_filled(self):
+        # given
+        configuration = {'size': 2, 'columns': [
+            {},
+            {'requiredIfFilled': 0},
+        ]}
+        validator = Validator()
+
+        # when, then
+        self.__repeat(validator, configuration, [
+            {'values': '1|2', 'result': True},
+            {'values': '1|  ', 'result': False},
+            {'values': ' |2', 'result': True},
+            {'values': '|  ', 'result': True}
+        ])
+
     def __repeat(self, validator, configuration, test_cases):
         for test_case in test_cases:
             # when

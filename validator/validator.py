@@ -21,6 +21,7 @@ class Validator:
         result = self.__validate_field_integer(field) and result
         result = self.__validate_field_date(field) and result
         result = self.__validate_field_required_if_empty(field, record) and result
+        result = self.__validate_field_required_if_filled(field, record) and result
 
         return result
 
@@ -142,5 +143,14 @@ class Validator:
         if required_if_empty >= 0:
             related_field = record.get_field(required_if_empty)
             result = field.get_value().strip() or related_field.get_value().strip()
+            self.__log(result, "Missing %s field (related on %s)" % (field.get_name(), related_field.get_name()))
+        return bool(result)
+
+    def __validate_field_required_if_filled(self, field, record):
+        result = True
+        required_if_filled = field.get_meta().get('requiredIfFilled', -1)
+        if required_if_filled >= 0:
+            related_field = record.get_field(required_if_filled)
+            result = not related_field.get_value().strip() or field.get_value().strip()
             self.__log(result, "Missing %s field (related on %s)" % (field.get_name(), related_field.get_name()))
         return bool(result)
