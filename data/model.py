@@ -15,13 +15,13 @@ class Data:
 class Record:
     def __init__(self, data, configuration):
         self.__expected_size = configuration.get('size', 0)
-        delimiter = configuration.get('delimiter', DELIMITER)
+        self.__delimiter = configuration.get('delimiter', DELIMITER)
         columns = configuration.get('columns', [])
 
         def get_meta(index):
             return columns[index] if len(columns) > index else {}
 
-        self.__fields = [Field(value, index, get_meta(index)) for index, value in enumerate(data.split(delimiter))]
+        self.__fields = [Field(value, index, get_meta(index)) for index, value in enumerate(data.split(self.__delimiter))]
 
     def get_fields(self):
         return self.__fields
@@ -33,6 +33,9 @@ class Record:
 
     def get_expected_size(self):
         return self.__expected_size
+
+    def __str__(self):
+        return self.__delimiter.join([str(field) for field in self.get_fields()])
 
 
 class Field:
@@ -49,3 +52,6 @@ class Field:
 
     def get_name(self):
         return self.__meta.get('name', '<Field #%s>' % self.__index)
+
+    def __str__(self):
+        return self.get_value()
