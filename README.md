@@ -67,8 +67,8 @@ Column validator configuration
 |`pattern`|string|Regexp pattern to validate column value. Pattern should not contain regex delimiters at start and end. Please notice that usually the pattern has to contain `^` at the beginning and `$` at the end to correct working.|If not provided, the validator will skip this validation.|
 |`date`|string|Date format for validation. This validator can be used to validate if provided value is a correct date in the required format. [Python directives](http://docs.python.org/2/library/datetime.html#strftime-strptime-behavior) have to be used for this validator.|If not provided, the validator will skip this validation.|
 |`integer`|boolean|Determines if expected value must contain only digits.|`false`|
-|`relatedIfEmpty`|integer|Allows to validate group of fields when at least one is required. Provide index (starting from 0) of related field. Field will be required if value at provided index is empty.|-1|
-|`relatedIfFilled`|integer|Allows to validate group of fields when one is required if another field has value. Provide index (starting from 0) of related field. Field will be required if value at provided index is not empty.|-1|
+|`requiredIfEmpty`|integer|Allows to validate group of fields when at least one is required. Provide index (starting from 0) of related field. Field will be required if value at provided index is empty.|-1|
+|`requiredIfFilled`|integer|Allows to validate group of fields when one is required if another field has value. Provide index (starting from 0) of related field. Field will be required if value at provided index is not empty.|-1|
 
 
 <a name="usage"/>
